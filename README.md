@@ -12,7 +12,8 @@ The user will interface with the program through a basic text based interface. T
 1) Choice 1
 2) Choice 2
 X) Choice X
-99) End```
+99) End
+```
 The user will input a number and their choice will be fed into code structure (either if/elif/else or match/case) and depending on their choice a function will be run or information will be recorded. If the user selects "99) End" they will be sent back to the main menu or the program will end if they are already in the main menu. The main menu is a while loop whose condition is only set to false if the user selects End on it. This is already implemented.
 
 ## Teams
