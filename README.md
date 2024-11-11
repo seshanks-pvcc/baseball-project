@@ -1,5 +1,5 @@
 # baseball-project
-This is my final project for CSC221. It will simulate a game of baseball.
+This is my final project for CSC221. It will simulate a game of baseball. It is loosely based off of the logic of Blaseball (RIV.)
 
 ### Baseball overview
 In case you are unfamiliar with the game of baseball it is a ball-and-bat game that is playing in an area with four "Bases" layed out in a diamond. Visiting all four bases earns a player a point known as a "Run." Over the course of 9 "Innings" two teams take turns "Batting" and "Pitching" in order to attempt to earn Runs or prevent the opposing team from earning Runs, respectively. Each Inning is split into a "Top half" and a "Bottom half," which end after the Batting team receives three "Outs," earned either by players getting tagged by the ball while running between bases, or receiving three "Strikes" when they fail to hit a pitched ball that was within the "Strike Zone," an area where the ball is supposed to be hittable. After a team gets three Outs the next Half-Inning occurs and the other team gets their chance to Bat. 
@@ -17,7 +17,54 @@ X) Choice X
 The user will input a number and their choice will be fed into code structure (either if/elif/else or match/case) and depending on their choice a function will be run or information will be recorded. If the user selects "99) End" they will be sent back to the main menu or the program will end if they are already in the main menu. The main menu is a while loop whose condition is only set to false if the user selects End on it. This is already implemented.
 
 ## Teams
-Team will be a class consisting of a list of `Pitchers` and `Batters` both of which are lists of Player objects, and other attributes recording information such a name and win/loss record
+Team will be a class consisting of a list of `Pitchers` (length 5 by default) and `Batters` (length 8 by default) both of which are lists of Player objects, and other attributes recording information such a name and win/loss record. The full list of attributes will be as follows:
+```
+#Attribute     Type
+name           str
+slogan         str
+wins           int
+losses         int
+games          int
+championships  int (for compatibility with future/advanced versions that might be implemented after the basic game is)
+currentPitcher int
+pitchers       list of Players (default length 5)
+batters        list of Players (default length 8)
+```
+Teams will also have a number of methods to define how they are displayed, as well as grabbing the current pitcher, and incrementing wins or losses.
 
 ## Players
-Player will be a class consisting of a number of statistical attributes which will affect the odds of the randomly generated rolls as well as a name.
+Player will be a class consisting of a number of statistical attributes which will affect the odds of the randomly generated rolls as well as a name and position. The list of atributes is as follows:
+```
+#Attribute       Type
+fname            str
+lname            str
+position         str (might be enum to make it easier to implement)
+
+#all of these are floats between 0 and 1
+#batting stats
+power            (affects the amount of bases that can be run off of a hit (by affecting how far the ball goes))
+appraisal        (affects swinging at balls/strikes)
+accuracy         (affects foul/fair balls)
+twitch           (affects the chance of hitting on swing)
+
+#pitching stats
+strength         (counters twitch)
+trickiness       (counters appraisal)
+resilience       (counters power)
+perfection       (affects strike chance)
+
+#baserunning stats
+speed            (affects the ability of players to run without being caught)
+greed            (affects how often the player attempts to steal)
+sneak            (counters vigilence)
+plead            (affects advance on outs)
+
+#defense stats
+vigilence        (catching base stealers)
+perception       (catching hits)
+blocking         (prevents runners from advancing)
+chasing          (counters speed)
+```
+
+## Game
+The game state will be stored in local variables in the game function. There will be random.random() values compared to threasholds modified by the stats of relevant players. If the generated number is less than the threashold it will be "successful" and the outcome will favor the batting team. 
