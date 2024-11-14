@@ -5,6 +5,14 @@ import random
 def toStars(stat):
     return ("☆","★")[stat >= 0.2] + ("☆","★")[stat >= 0.4] + ("☆","★")[stat >= 0.6] + ("☆","★")[stat >= 0.8] + ("☆","★")[stat >= 1]
 
+def genfname(inp):
+    #Will pick a name from a list, or will generate a name from a set of alternating "consonants" and "vowels"
+    #currently set to make debug names
+    return ("1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th")[inp]
+
+def genlname(inp):
+    return ("Pitcher", "Batter")[inp]
+
 class Player:
     #defined here so that it can be referred to by all players
     positions = ("Catcher","First Base","Second Base","Third Base","Shortstop","Left Field","Right Field","Center Field", "Pitcher")
@@ -54,6 +62,7 @@ class Player:
         return (self.vigilence + self.perception + self.blocking + self.chasing) / 4
         
     def __str__(self):
+        # TODO: Fix to justify it
         return self.fname + " " + self.lname + ", " + self.getPosition() + ": " + toStars((self.averageBatting(), self.averagePitching())[self.getPosition() == self.positions[-1]])
     
     def displayDetail(self):
@@ -81,13 +90,79 @@ class Player:
 
 
 class Team:
-    name = ""
-    slogan = ""
     
-    wins = 0
-    losses = 0
-    games = 0
-    championships = 0 #possibly will go unused
-    currentPitcher = 0 # zero indexed
-    pitchers = []
-    batters = []
+    pAmount = 5
+    bAmount = 8
+
+    def __init__(self, name = "Hades Tigers", slogan = "Never Look Back"):
+        self.name = name
+        self.slogan = slogan
+        
+        self.wins = 0
+        self.losses = 0
+        self.games = 0
+        self.championships = 0 #possibly will go unused
+        self.currentPitcher = 0 # zero indexed
+        self.pitchers = []
+        for i in range(0, self.pAmount):
+            self.pitchers.append(Player(genfname(i), genlname(0), -1))
+        self.batters = []
+        for i in range(0, self.bAmount):
+            self.batters.append(Player(genfname(i), genlname(1), i))
+
+    def record(self):
+        return str(self.wins) + "-" + str(self.losses)
+
+    def __str__(self):
+        return self.name + ", \"" + self.slogan + "\" " + self.record()
+    
+    def listPlayers(self):
+        print("Pitchers:")
+        for pitcher in self.pitchers:
+            print("  " + str(pitcher))
+        print("Batters:")
+        for batter in self.batters:
+            print("  " + str(batter))
+
+    def promptPlayers(self):
+        count = 1
+        print("Pitchers:")
+        for pitcher in self.pitchers:
+            print(str(count) + ") " + str(pitcher))
+            count = count + 1
+        print("Batters:")
+        for batter in self.batters:
+            print(str(count) + ") " + str(batter))
+            count = count + 1
+
+    def getPlayer(self, number):
+        number = number - 1
+        if number > len(self.batters) + len(self.pitchers) or number < 0:
+            return 0
+        elif number > len(self.pitchers):
+            return self.batters[number-len(self.pitchers)]
+        else:
+            return self.pitchers[number]
+        
+    def getCurrentPitcher(self):
+        return self.pitchers[self.currentPitcher]
+    
+    def win(self):
+        self.wins = self.wins + 1
+        self.games = self.games + 1
+        self.currentPitcher = (self.currentPitcher + 1) % len(self.pitchers)
+
+    def lose(self):
+        self.losses = self.losses + 1
+        self.games = self.games + 1
+        self.currentPitcher = (self.currentPitcher + 1) % len(self.pitchers)
+
+    def displayDetail(self):
+        print(self.name)
+        print("\""+self.slogan+"\"")
+        print("Wins:          " + str(self.wins))
+        print("Losses:        " + str(self.losses))
+        print("Games Played:  " + str(self.games))
+        print("Championships: " + str(self.championships))
+        self.listPlayers()
+
