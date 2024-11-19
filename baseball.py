@@ -46,7 +46,7 @@ def runGame(tms):
     while game: #Loops every inning
         print(("Top", "Bottom")[inning % 2] + " of the " + convertInning(inning) + " Inning.")
         tick()
-        print((home.getCurrentPitcher().getName(), (away.getCurrentPitcher().getName())[inning % 2] + " pitching for the " + (home.name, away.name)[inning % 2])
+        print((home.getCurrentPitcher().getName(), away.getCurrentPitcher().getName())[inning % 2] + " pitching for the " + (home.name, away.name)[inning % 2])
         tick()
         if (awayRuns == homeRuns) or inning < 18:
             inning = inning + 1
