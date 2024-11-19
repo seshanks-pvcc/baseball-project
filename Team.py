@@ -63,7 +63,13 @@ class Player:
         
     def __str__(self):
         # TODO: Fix to justify it
-        return self.fname + " " + self.lname + ", " + self.getPosition() + ": " + toStars((self.averageBatting(), self.averagePitching())[self.getPosition() == self.positions[-1]])
+        return self.fname + " " + self.lname + ", " + (" " * (25 - (1 + len(self.fname) + len(self.lname)))) + self.getPosition() + ": " + (" " * (12 - len(self.getPosition()))) + toStars((self.averageBatting(), self.averagePitching())[self.getPosition() == self.positions[-1]])
+    
+    def getName(self, full=True):
+        if full:
+            return self.fname + " " + self.lname
+        else:
+            return self.lname
     
     def displayDetail(self):
         print(self.fname + " " + self.lname + ", " + self.getPosition())
@@ -128,17 +134,17 @@ class Team:
         count = 1
         print("Pitchers:")
         for pitcher in self.pitchers:
-            print(str(count) + ") " + str(pitcher))
+            print(str(count) + ")" + (" " * (3 - len(str(count)))) + str(pitcher))
             count = count + 1
         print("Batters:")
         for batter in self.batters:
-            print(str(count) + ") " + str(batter))
+            print(str(count) + ")" + (" " * (3 - len(str(count)))) + str(batter))
             count = count + 1
 
     def getPlayer(self, number):
         number = number - 1
         if number > len(self.batters) + len(self.pitchers) or number < 0:
-            return 0
+            raise Exception("Input out of range")
         elif number > len(self.pitchers):
             return self.batters[number-len(self.pitchers)]
         else:
@@ -157,12 +163,15 @@ class Team:
         self.games = self.games + 1
         self.currentPitcher = (self.currentPitcher + 1) % len(self.pitchers)
 
-    def displayDetail(self):
+    def displayDetail(self, prompt = False):
         print(self.name)
         print("\""+self.slogan+"\"")
         print("Wins:          " + str(self.wins))
         print("Losses:        " + str(self.losses))
         print("Games Played:  " + str(self.games))
         print("Championships: " + str(self.championships))
-        self.listPlayers()
+        if prompt:
+            self.promptPlayers()
+        else:
+            self.listPlayers()
 
