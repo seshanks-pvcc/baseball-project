@@ -44,11 +44,29 @@ def runGame(tms):
     print(str(away.name) + " at " + str(home.name))
     tick()
     while game: #Loops every inning
+        batter = 0
         print(("Top", "Bottom")[inning % 2] + " of the " + convertInning(inning) + " Inning.")
         tick()
-        print((home.getCurrentPitcher().getName(), away.getCurrentPitcher().getName())[inning % 2] + " pitching for the " + (home.name, away.name)[inning % 2])
+        currentPitcher = (home.getCurrentPitcher(), away.getCurrentPitcher())[inning % 2]
+        print(currentPitcher.getName() + " pitching for the " + (home.name, away.name)[inning % 2])
         tick()
-        if (awayRuns == homeRuns) or inning < 18:
+        while outs >= 3: #loops every at-bat
+            currentBatter = (home.batters[batter], away.batters[batter])[inning%2]
+            print(currentBatter.getName() + " up to bat!")
+            tick()
+            batting = True
+            while batting: #loops every pitch
+                pitch = ""
+                if random.random() + (0.3 * currentPitcher.perfection) < 0.55: #strike chance should vary from 0.45 to 0.75
+                    pitch = "ball"
+                else:
+                    pitch = "strike"
+            
+        if ((awayRuns == homeRuns) or inning < 18) and not (awayRuns > homeRuns and (inning % 2) == 1 and inning >= 17): #ties and being before the 10th inning cause the game to continue, the away team already winning going into the bottom (the half they score in) of the final inning (9th or extra) causes the game to end regardless.
+            bases = [0, 0, 0]
+            balls = 0
+            strikes = 0
+            outs = 0
             inning = inning + 1
         else:
             game = False
