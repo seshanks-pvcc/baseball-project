@@ -85,8 +85,9 @@ def runGame(tms):
                     if random.random() < 0.4 + (0.2 * currentBatter.accuracy): #50% chance of fair ball, 10pp var, pitcher doesn't affect because I don't have it in the doc
                         #TODO implement this
                         hittheball
-                    elif strikes < 2:
-                        strikes = strikes + 1
+                    else:
+                        if strikes < 2:
+                            strikes = strikes + 1
                         outcome = "Foul Ball. " + balls + "-" + strikes
                 if strikes >= 3:
                     outcome = currentBatter.getName + " Strikes Out."
