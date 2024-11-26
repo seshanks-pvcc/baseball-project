@@ -56,12 +56,68 @@ def runGame(tms):
             tick()
             batting = True
             while batting: #loops every pitch
+                outcome = ""
                 pitch = ""
+                swing = False
+                contact = False
                 if random.random() + (0.3 * currentPitcher.perfection) < 0.55: #strike chance should vary from 0.45 to 0.75
                     pitch = "ball"
                 else:
                     pitch = "strike"
-            
+                if pitch == "strike" and random.random() + (0.2 * currentPitcher.trickiness) < 0.5 + (0.2 * currentBatter.appraisal): #Batters should swing at strikes ~60% of the time, with 10pp variation in both pitcher and batter skill
+                    swing = True
+                elif pitch == "ball" and random.random() + (0.2 * currentBatter.appraisal) < 0.2 + (0.2 * currentPitcher.trickiness): #Batters should swing at balls ~30% of the time with 10pp variation. Batters not swinging at the ball is good, so the rule is broken in order to have locally consistent code, note the stats are swapped from above
+                    swing = True
+                if swing:
+                    if pitch == "strike" and random.random() + (0.3 * currentPitcher.strength) < 0.7 + (0.3 * currentBatter.twitch): #average 85% success, 15pp var on both
+                        contact = True
+                    elif pitch == "ball" and random.random() + (0.2 * currentPitcher.strength) < 0.45 + (0.2 * currentBatter.twitch): #average 55% success, 10pp var on both
+                        contact = True
+                    #swing
+                if not contact:
+                    if pitch == "ball":
+                        balls = balls + 1
+                        outcome = "Ball. " + balls + "-" + strikes
+                    elif pitch == "strike":
+                        strikes = strikes + 1
+                        outcome = "Strike, " + (" Looking. ", "Swinging. ")[swing] + balls + "-" + strikes
+                else:
+                    if random.random() < 0.4 + (0.2 * currentBatter.accuracy): #50% chance of fair ball, 10pp var, pitcher doesn't affect because I don't have it in the doc
+                        #TODO implement this
+                        hittheball
+                    elif strikes < 2:
+                        strikes = strikes + 1
+                        outcome = "Foul Ball. " + balls + "-" + strikes
+                if strikes >= 3:
+                    outcome = currentBatter.getName + " Strikes Out."
+                    outs = outs + 1
+                    batting = False
+                elif balls >= 4:
+                    outcome = currentBatter.getName() + " Walks to First Place."
+                    # Advancement algorithm. Can't be in function because I need too many results from it. (state of bases, anyone who scored, sometimes I will need to account for runners getting out)
+                    if bases[0] == 0:
+                        bases[0] = currentBatter
+                    elif bases[1] == 0:
+                        bases[1] = bases[0]
+                        bases[0] = currentBatter
+                    elif bases[2] == 0:
+                        bases[2] = bases[1]
+                        bases[1] = bases[0]
+                        bases[0] = currentBatter
+                    else:
+                        outcome = outcome + " " + bases[2].getName() + " scores 1 Run."
+                        bases[2] = bases[1]
+                        bases[1] = bases[0]
+                        bases[0] = currentBatter
+                        if inning % 2:
+                            awayRuns = awayRuns + 1
+                        else:
+                            homeRuns = homeRuns + 1
+                
+
+                 
+
+                
         if ((awayRuns == homeRuns) or inning < 18) and not (awayRuns > homeRuns and (inning % 2) == 1 and inning >= 17): #ties and being before the 10th inning cause the game to continue, the away team already winning going into the bottom (the half they score in) of the final inning (9th or extra) causes the game to end regardless.
             bases = [0, 0, 0]
             balls = 0
