@@ -44,18 +44,21 @@ def runGame(tms):
     print(str(away.name) + " at " + str(home.name))
     tick()
     while game: #Loops every inning
+        pitchingTeam = (home,away)[inning%2]
+        battingTeam = (away,home)[inning%2]
         batter = 0
         print(("Top", "Bottom")[inning % 2] + " of the " + convertInning(inning) + " Inning.")
         tick()
-        currentPitcher = (home.getCurrentPitcher(), away.getCurrentPitcher())[inning % 2]
-        print(currentPitcher.getName() + " pitching for the " + (home.name, away.name)[inning % 2])
+        currentPitcher = pitchingTeam.getCurrentPitcher()
+        print(currentPitcher.getName() + " pitching for the " + pitchingTeam.name)
         tick()
-        while outs >= 3: #loops every at-bat
-            currentBatter = (home.batters[batter], away.batters[batter])[inning%2]
+        while outs >= 3: #loops every plate appearence
+            currentBatter = battingTeam.batters[batter]
             print(currentBatter.getName() + " up to bat!")
             tick()
             batting = True
             while batting: #loops every pitch
+                #TODO stealing
                 outcome = ""
                 pitch = ""
                 swing = False
@@ -82,9 +85,64 @@ def runGame(tms):
                         strikes = strikes + 1
                         outcome = "Strike, " + (" Looking. ", "Swinging. ")[swing] + balls + "-" + strikes
                 else:
+                    batting = False
                     if random.random() < 0.4 + (0.2 * currentBatter.accuracy): #50% chance of fair ball, 10pp var, pitcher doesn't affect because I don't have it in the doc
-                        #TODO implement this
-                        hittheball
+                        
+                        distance = random.random() + (currentPitcher.resilience) - (currentBatter.power) #smaller value = more distance
+                        defender = random.choice(pitchingTeam.batters)
+                        if distance + (0.4 * defender.perception) < 0.4:
+                            #If not out: Single rate 65% Double rate 19% Triple rate 1% Home Runs 15% 
+                            travelling = distance - currentBatter.speed + defender.chasing # will be used for for far the batter gets
+                            hit = 0
+                            if travelling > 0.35:
+                                outcome = currentBatter.name + " hits a Single."
+                                hit = 1
+                            elif travelling > 0.16:
+                                outcome = currentBatter.name + " hits a Double."
+                                hit = 2
+                            elif travelling > 0.15:
+                                outcome = currentBatter.name + " hits a Triple."
+                                hit = 3
+                            else:
+                                outcome = currentBatter.name + " hits a Home Run!"
+                                hit = 4
+                            runsScored = 0
+                            for runner in range(0, len(bases), -1):
+                                if hit == 4:
+                                    bases[runner] = 0
+                                    runsScored = runsScored + 1
+                                    if inning % 2:
+                                        awayRuns = awayRuns + 1
+                                    else:
+                                        homeRuns = homeRuns + 1
+                                elif bases[runner] != 0 and random.random() + defender.blocking < 0.4 + (0.2 * bases[runner].speed):
+                                    if len(bases) - runner <= hit:
+                                        bases[runner] = 0
+                                        runsScored = runsScored + 1
+                                        if inning % 2:
+                                            awayRuns = awayRuns + 1
+                                        else:
+                                            homeRuns = homeRuns + 1
+                                    elif bases[runner + hit] != 0:
+                                        bases[runner + hit] = bases[runner]
+                                        bases[runner] = 0
+                                else:
+                                    bases[runner] = 0
+                                    outs = outs + 1
+                            if hit == 4:
+                                runsScored = runsScored + 1
+                                if inning % 2:
+                                    awayRuns = awayRuns + 1
+                                else:
+                                    homeRuns = homeRuns + 1
+                            else:
+                                if bases[hit-1] == 0:
+                                    bases[hit-1] = currentBatter
+                                else:
+                                    bases #TODO fix
+                        else: #batter gets out on hit
+                            #TODO sacrifice plays
+                            outs = outs + 1
                     else:
                         if strikes < 2:
                             strikes = strikes + 1
