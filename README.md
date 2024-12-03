@@ -63,7 +63,7 @@ plead            (affects advance on outs)
 vigilence        (catching base stealers)
 perception       (catching hits)
 blocking         (prevents runners from advancing)
-chasing          (counters speed)
+chasing          (prevents batter from reaching extra bases)
 ```
 
 ## Game
