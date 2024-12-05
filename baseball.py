@@ -8,7 +8,7 @@ from Team import *
 # Structural variable declarations
 program = True
 
-teams = [Team("Testing Testers", "Slogan still under review"), Team("Detroit Bugs", "Punched ya!")] #I am aware this pun is extremely weak, IDR why they are from detroit in the first place.
+teams = [Team("Testing Testers", "Slogan still under review", "T"), Team("Detroit Bugs", "Punched ya!", "D")] #I am aware this pun is extremely weak, IDR why they are from detroit in the first place.
 
 
 
@@ -29,6 +29,7 @@ def convertInning(num):
     else:
         return str(inning) + "th"
 
+
 # tms is a length 2 list of the teams playing against each other, the latter being the home team
 def runGame(tms):
     game = True
@@ -41,6 +42,10 @@ def runGame(tms):
     awayRuns = 0
     home = tms[1]
     homeRuns = 0
+
+    def output(event):
+        words = " ".split(event) #57 characters in the event section of the output
+
     print(str(away.name) + " at " + str(home.name))
     tick()
     while game: #Loops every inning
@@ -58,97 +63,140 @@ def runGame(tms):
             tick()
             batting = True
             while batting: #loops every pitch
-                #TODO stealing
                 outcome = ""
                 pitch = ""
                 swing = False
                 contact = False
-                if random.random() + (0.3 * currentPitcher.perfection) < 0.55: #strike chance should vary from 0.45 to 0.75
-                    pitch = "ball"
+                steal = False
+                thief = -1
+                for runner in range(len(bases)-2, -1, -1):
+                    if runner != 0 and bases[runner+1] == 0 and not steal and random.random() < 0.1 + (0.3 * bases[runner].greed):
+                        steal = True
+                        thief = runner
+                if steal:
+                    if random.random() + (0.2 * currentPitcher.vigilence) < 0.5 + (0.2 * bases[thief].sneak):
+                        outcome = bases[thief].getName() + " steals " + ("1st", "2nd", "3rd")[thief + 1] + " base!"
+                        bases[thief + 1] = bases[thief]
+                        bases[thief] = 0
+                    else:
+                        outcome = bases[thief].getName() + " caught stealing"
+                        bases[thief] = 0
+                        outs = outs + 1
                 else:
-                    pitch = "strike"
-                if pitch == "strike" and random.random() + (0.2 * currentPitcher.trickiness) < 0.5 + (0.2 * currentBatter.appraisal): #Batters should swing at strikes ~60% of the time, with 10pp variation in both pitcher and batter skill
-                    swing = True
-                elif pitch == "ball" and random.random() + (0.2 * currentBatter.appraisal) < 0.2 + (0.2 * currentPitcher.trickiness): #Batters should swing at balls ~30% of the time with 10pp variation. Batters not swinging at the ball is good, so the rule is broken in order to have locally consistent code, note the stats are swapped from above
-                    swing = True
-                if swing:
-                    if pitch == "strike" and random.random() + (0.3 * currentPitcher.strength) < 0.7 + (0.3 * currentBatter.twitch): #average 85% success, 15pp var on both
-                        contact = True
-                    elif pitch == "ball" and random.random() + (0.2 * currentPitcher.strength) < 0.45 + (0.2 * currentBatter.twitch): #average 55% success, 10pp var on both
-                        contact = True
-                    #swing
-                if not contact:
-                    if pitch == "ball":
-                        balls = balls + 1
-                        outcome = "Ball. " + balls + "-" + strikes
-                    elif pitch == "strike":
-                        strikes = strikes + 1
-                        outcome = "Strike, " + (" Looking. ", "Swinging. ")[swing] + balls + "-" + strikes
-                else:
-                    batting = False
-                    if random.random() < 0.4 + (0.2 * currentBatter.accuracy): #50% chance of fair ball, 10pp var, pitcher doesn't affect because I don't have it in the doc
-                        
-                        distance = random.random() + (currentPitcher.resilience) - (currentBatter.power) #smaller value = more distance
-                        defender = random.choice(pitchingTeam.batters)
-                        if distance + (0.4 * defender.perception) < 0.4:
-                            #If not out: Single rate 65% Double rate 19% Triple rate 1% Home Runs 15% 
-                            travelling = distance - currentBatter.speed + defender.chasing # will be used for for far the batter gets
-                            hit = 0
-                            if travelling > 0.35:
-                                outcome = currentBatter.name + " hits a Single."
-                                hit = 1
-                            elif travelling > 0.16:
-                                outcome = currentBatter.name + " hits a Double."
-                                hit = 2
-                            elif travelling > 0.15:
-                                outcome = currentBatter.name + " hits a Triple."
-                                hit = 3
-                            else:
-                                outcome = currentBatter.name + " hits a Home Run!"
-                                hit = 4
-                            runsScored = 0
-                            for runner in range(0, len(bases), -1):
-                                if hit == 4:
-                                    bases[runner] = 0
-                                    runsScored = runsScored + 1
-                                    if inning % 2:
-                                        awayRuns = awayRuns + 1
-                                    else:
-                                        homeRuns = homeRuns + 1
-                                elif bases[runner] != 0 and random.random() + defender.blocking < 0.4 + (0.2 * bases[runner].speed):
-                                    if len(bases) - runner <= hit:
+                    if random.random() + (0.3 * currentPitcher.perfection) < 0.55: #strike chance should vary from 0.45 to 0.75
+                        pitch = "ball"
+                    else:
+                        pitch = "strike"
+                    if pitch == "strike" and random.random() + (0.2 * currentPitcher.trickiness) < 0.5 + (0.2 * currentBatter.appraisal): #Batters should swing at strikes ~60% of the time, with 10pp variation in both pitcher and batter skill
+                        swing = True
+                    elif pitch == "ball" and random.random() + (0.2 * currentBatter.appraisal) < 0.2 + (0.2 * currentPitcher.trickiness): #Batters should swing at balls ~30% of the time with 10pp variation. Batters not swinging at the ball is good, so the rule is broken in order to have locally consistent code, note the stats are swapped from above
+                        swing = True
+                    if swing:
+                        if pitch == "strike" and random.random() + (0.3 * currentPitcher.strength) < 0.7 + (0.3 * currentBatter.twitch): #average 85% success, 15pp var on both
+                            contact = True
+                        elif pitch == "ball" and random.random() + (0.2 * currentPitcher.strength) < 0.45 + (0.2 * currentBatter.twitch): #average 55% success, 10pp var on both
+                            contact = True
+                        #swing
+                    if not contact:
+                        if pitch == "ball":
+                            balls = balls + 1
+                            outcome = "Ball. " + balls + "-" + strikes
+                        elif pitch == "strike":
+                            strikes = strikes + 1
+                            outcome = "Strike, " + (" Looking. ", "Swinging. ")[swing] + balls + "-" + strikes
+                    else:
+                        batting = False
+                        if random.random() < 0.4 + (0.2 * currentBatter.accuracy): #50% chance of fair ball, 10pp var, pitcher doesn't affect because I don't have it in the doc
+
+                            distance = random.random() + (currentPitcher.resilience) - (currentBatter.power) #smaller value = more distance
+                            defender = random.choice(pitchingTeam.batters)
+                            if distance + (0.4 * defender.perception) < 0.4:
+                                #If not out: Single rate 65% Double rate 19% Triple rate 1% Home Runs 15% 
+                                travelling = distance - currentBatter.speed + defender.chasing # will be used for for far the batter gets
+                                hit = 0
+                                if travelling > 0.35:
+                                    outcome = currentBatter.name + " hits a Single."
+                                    hit = 1
+                                elif travelling > 0.16:
+                                    outcome = currentBatter.name + " hits a Double."
+                                    hit = 2
+                                elif travelling > 0.15:
+                                    outcome = currentBatter.name + " hits a Triple."
+                                    hit = 3
+                                else:
+                                    outcome = currentBatter.name + " hits a Home Run!"
+                                    hit = 4
+                                runsScored = 0
+                                for runner in range(len(bases)-1, -1, -1):
+                                    if hit == 4:
                                         bases[runner] = 0
                                         runsScored = runsScored + 1
                                         if inning % 2:
                                             awayRuns = awayRuns + 1
                                         else:
                                             homeRuns = homeRuns + 1
-                                    elif bases[runner + hit] != 0:
-                                        bases[runner + hit] = bases[runner]
+                                    elif bases[runner] != 0 and random.random() + (0.2 * defender.blocking) < 0.4 + (0.2 * bases[runner].speed):
+                                        if len(bases) - runner <= hit:
+                                            bases[runner] = 0
+                                            runsScored = runsScored + 1
+                                            if inning % 2:
+                                                awayRuns = awayRuns + 1
+                                            else:
+                                                homeRuns = homeRuns + 1
+                                        elif bases[runner + hit] != 0:
+                                            bases[runner + hit] = bases[runner]
+                                            bases[runner] = 0
+                                    else:
+                                        outcome = outcome + " " + defender.getName() + " tags " + bases[runner].getName() + " out at " + ("1st","2nd","3rd")[runner] + " base."
                                         bases[runner] = 0
+                                        outs = outs + 1
+                                if hit == 4:
+                                    runsScored = runsScored + 1
+                                    if inning % 2:
+                                        awayRuns = awayRuns + 1
+                                    else:
+                                        homeRuns = homeRuns + 1
                                 else:
-                                    bases[runner] = 0
-                                    outs = outs + 1
-                            if hit == 4:
-                                runsScored = runsScored + 1
-                                if inning % 2:
-                                    awayRuns = awayRuns + 1
+                                   bases[hit-1] = currentBatter # it should be impossible for this to overwrite a player and if it does it won't really matter
+                            else: #batter gets out on hit
+                                if distance < 0.4:
+                                    outcome = "Fly out to " + defender.getName()
                                 else:
-                                    homeRuns = homeRuns + 1
-                            else:
-                                if bases[hit-1] == 0:
-                                    bases[hit-1] = currentBatter
-                                else:
-                                    bases #TODO fix
-                        else: #batter gets out on hit
-                            #TODO sacrifice plays
-                            outs = outs + 1
-                    else:
-                        if strikes < 2:
-                            strikes = strikes + 1
-                        outcome = "Foul Ball. " + balls + "-" + strikes
+                                    outcome = "Ground out to " + defender.getName()
+                                for runner in range(len(bases)-1, -1, -1):
+                                    sacAdv = random.random() + (0.2 * defender.blocking)
+                                    if runner == 2:
+                                        if sacAdv < 0.2 + (0.2 * bases[runner].plead):
+                                                outcome = outcome + " " + bases[runner].getName() + " scores on the sacrifice."
+                                                runsScored = runsScored + 1
+                                                if inning % 2:
+                                                    awayRuns = awayRuns + 1
+                                                else:
+                                                    homeRuns = homeRuns + 1
+                                                bases[runner] = 0
+                                        elif sacAdv > 0.7 + (0.2 * bases[runner].plead):
+                                            outcome = outcome + " " + bases[runner].getName() + " was caught out on the sacrifice."
+                                            bases[runner] = 0
+                                            outs = outs + 1
+                                    else:
+                                        if bases[runner + 1] == 0:
+                                            if sacAdv < 0.2 + (0.2 * bases[runner].plead):
+                                                outcome = outcome + " " + bases[runner].getName() + " advances on the sacrifice."
+                                                bases[runner + 1] = bases[runner]
+                                                bases[runner] = 0
+                                            elif sacAdv > 0.7 + (0.2 * bases[runner].plead):
+                                                outcome = outcome + " " + bases[runner].getName() + " was caught out on the sacrifice."
+                                                bases[runner] = 0
+                                                outs = outs + 1
+                                outs = outs + 1
+                        else:
+                            if strikes < 2:
+                                strikes = strikes + 1
+                            outcome = "Foul Ball. " + balls + "-" + strikes
+                output
+                tick()
                 if strikes >= 3:
-                    outcome = currentBatter.getName + " Strikes Out."
+                    output(currentBatter.getName + " Strikes Out.")
                     outs = outs + 1
                     batting = False
                 elif balls >= 4:
@@ -172,6 +220,7 @@ def runGame(tms):
                             awayRuns = awayRuns + 1
                         else:
                             homeRuns = homeRuns + 1
+                    output(outcome)
                 
 
                  

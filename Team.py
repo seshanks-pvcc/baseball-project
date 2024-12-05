@@ -100,10 +100,10 @@ class Team:
     pAmount = 5
     bAmount = 8
 
-    def __init__(self, name = "Hades Tigers", slogan = "Never Look Back"):
+    def __init__(self, name = "Hades Tigers", slogan = "Never Look Back", symbol = "$"):
         self.name = name
         self.slogan = slogan
-        
+        self.symbol = symbol
         self.wins = 0
         self.losses = 0
         self.games = 0
@@ -120,7 +120,7 @@ class Team:
         return str(self.wins) + "-" + str(self.losses)
 
     def __str__(self):
-        return self.name + ", \"" + self.slogan + "\" " + self.record()
+        return self.name + " " + self.symbol + ", \"" + self.slogan + "\" " + self.record()
     
     def listPlayers(self):
         print("Pitchers:")
@@ -164,7 +164,7 @@ class Team:
         self.currentPitcher = (self.currentPitcher + 1) % len(self.pitchers)
 
     def displayDetail(self, prompt = False):
-        print(self.name)
+        print(self.name + " " + self.symbol)
         print("\""+self.slogan+"\"")
         print("Wins:          " + str(self.wins))
         print("Losses:        " + str(self.losses))

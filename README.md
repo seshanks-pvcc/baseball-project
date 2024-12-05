@@ -22,6 +22,7 @@ Team will be a class consisting of a list of `Pitchers` (length 5 by default) an
 #Attribute     Type
 name           str
 slogan         str
+symbol         str (single character)
 wins           int
 losses         int
 games          int
@@ -68,3 +69,13 @@ chasing          (prevents batter from reaching extra bases)
 
 ## Game
 The game state will be stored in local variables in the game function. There will be random.random() values compared to threasholds modified by the stats of relevant players. If the generated number is less than the threashold it will be "successful" and the outcome will favor the batting team. 
+output width of 70 chars looks like the following: (although unreasonably large scores in unreasonably long games will break)
+```
+                                                         |    Bug    |
+Sample events, Wyatt Mason hits a ground out to thomas    ^12  XXX-YYY
+english                                                   A@H  B:○○●●
+                                                           M   S:○●●
+                                                          * *  O:○○●
+----------------------------------------------------------------------
+```
+where A is the away team's symbol, H is the home teams symbol, M is the runner on 2nd's last initial, XXX the away teams's score, YYY the home teams scores, 12 the inning, the ^ signifying the top of the inning (v if the bottom) and the B, S, and O counts showing the count of balls, strikes, and outs respectively.
