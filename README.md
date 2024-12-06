@@ -73,9 +73,9 @@ output width of 70 chars looks like the following: (although unreasonably large 
 ```
                                                          |    Bug    |
 Sample events, Wyatt Mason hits a ground out to thomas    ^12  XXX-YYY
-english                                                   A@H  B:○○●●
-                                                           M   S:○●●
-                                                          * *  O:○○●
+english                                                   A@H  B:○●●
+                                                           M   S:●●
+                                                          * *  O:○●
 ----------------------------------------------------------------------
 ```
 where A is the away team's symbol, H is the home teams symbol, M is the runner on 2nd's last initial, XXX the away teams's score, YYY the home teams scores, 12 the inning, the ^ signifying the top of the inning (v if the bottom) and the B, S, and O counts showing the count of balls, strikes, and outs respectively.

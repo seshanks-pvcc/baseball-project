@@ -44,22 +44,63 @@ def runGame(tms):
     homeRuns = 0
 
     def output(event):
-        words = " ".split(event) #57 characters in the event section of the output
+        words = event.split(" ") #57 characters in the event section of the output
+        lines = [""]
+        line = 0
+        for word in words:
+            if len(lines) -1 < line:
+                lines.append("")
+            if len(lines[line]) + len(word) + 1 <= 57:
+                lines[line] = lines[line] + word + " "
+            elif len(lines[line]) + len(word) <= 57: #if there is just enough space don't add a trailing space
+                lines[line] = lines[line] + word
+                line = line + 1
+            else:
+                lines[line] = lines[line] + (" " * (57 - len(lines[line])))
+                line = line + 1
+                lines.append(word)
+        lines[line] = lines[line] + (" " * (57 - len(lines[line])))
+        while len(lines) < 4:
+            lines.append(" " * 57)
+        for ln in lines:
+            if len(ln) < 57:
+                print
+                ln = ln + (" " * (57 - len(ln)))
+            elif len(ln) > 57:
+                raise "The output function broke somehow" + "\n" + ln #this shouldn't be reachable but if it happens I want to know about it
+        #these get variables because they are variable lengths
+        inningBug = ("^","v")[inning%2] + str((inning//2)+1)
+        awayScoreBug = str(awayRuns)
+        homeScoreBug = str(homeRuns)
+        baseOut = []
+        for base in bases:
+            if base == 0:
+                baseOut.append("*")
+            else:
+                baseOut.append(base.lname[0])
+        lines[0] = lines[0] + " " + (" ","")[len(inningBug)>2] + inningBug + (" ","")[len(inningBug)>3] + " " + awayScoreBug + "-" + homeScoreBug
+        lines[1] = lines[1] + " " + away.symbol + "@" + home.symbol + "  B:" + ("○","●")[balls>=3] + ("○","●")[balls>=2] + ("○","●")[balls>=1]
+        lines[2] = lines[2] + "  " + baseOut[1] + "   S:"  + ("○","●")[strikes>=2] + ("○","●")[strikes>=1]
+        lines[3] = lines[3] + " " + baseOut[2] + " " + baseOut[0] + "  O:"   + ("○","●")[outs>=2] + ("○","●")[outs>=1]
+        lines.append("-"*70)
+        print("\n".join(lines))
 
-    print(str(away.name) + " at " + str(home.name))
+    output(str(away.name) + " at " + str(home.name))
     tick()
     while game: #Loops every inning
         pitchingTeam = (home,away)[inning%2]
         battingTeam = (away,home)[inning%2]
         batter = 0
-        print(("Top", "Bottom")[inning % 2] + " of the " + convertInning(inning) + " Inning.")
+        output(("Top", "Bottom")[inning % 2] + " of the " + convertInning(inning) + " Inning.")
         tick()
         currentPitcher = pitchingTeam.getCurrentPitcher()
-        print(currentPitcher.getName() + " pitching for the " + pitchingTeam.name)
+        output(currentPitcher.getName() + " pitching for the " + pitchingTeam.name)
         tick()
-        while outs >= 3: #loops every plate appearence
+        while outs <= 3: #loops every plate appearence
+            balls = 0
+            strikes = 0
             currentBatter = battingTeam.batters[batter]
-            print(currentBatter.getName() + " up to bat!")
+            output(currentBatter.getName() + " up to bat!")
             tick()
             batting = True
             while batting: #loops every pitch
@@ -69,8 +110,9 @@ def runGame(tms):
                 contact = False
                 steal = False
                 thief = -1
+                runsScored = 0
                 for runner in range(len(bases)-2, -1, -1):
-                    if runner != 0 and bases[runner+1] == 0 and not steal and random.random() < 0.1 + (0.3 * bases[runner].greed):
+                    if bases[runner] != 0 and bases[runner+1] == 0 and not steal and random.random() < 0.1 + (0.3 * bases[runner].greed):
                         steal = True
                         thief = runner
                 if steal:
@@ -82,6 +124,8 @@ def runGame(tms):
                         outcome = bases[thief].getName() + " caught stealing"
                         bases[thief] = 0
                         outs = outs + 1
+                    if outs >= 3:
+                        batting = False
                 else:
                     if random.random() + (0.3 * currentPitcher.perfection) < 0.55: #strike chance should vary from 0.45 to 0.75
                         pitch = "ball"
@@ -100,14 +144,13 @@ def runGame(tms):
                     if not contact:
                         if pitch == "ball":
                             balls = balls + 1
-                            outcome = "Ball. " + balls + "-" + strikes
+                            outcome = "Ball. " + str(balls) + "-" + str(strikes)
                         elif pitch == "strike":
                             strikes = strikes + 1
-                            outcome = "Strike, " + (" Looking. ", "Swinging. ")[swing] + balls + "-" + strikes
+                            outcome = "Strike, " + (" Looking. ", "Swinging. ")[swing] + str(balls) + "-" + str(strikes)
                     else:
-                        batting = False
                         if random.random() < 0.4 + (0.2 * currentBatter.accuracy): #50% chance of fair ball, 10pp var, pitcher doesn't affect because I don't have it in the doc
-
+                            batting = False
                             distance = random.random() + (currentPitcher.resilience) - (currentBatter.power) #smaller value = more distance
                             defender = random.choice(pitchingTeam.batters)
                             if distance + (0.4 * defender.perception) < 0.4:
@@ -115,20 +158,20 @@ def runGame(tms):
                                 travelling = distance - currentBatter.speed + defender.chasing # will be used for for far the batter gets
                                 hit = 0
                                 if travelling > 0.35:
-                                    outcome = currentBatter.name + " hits a Single."
+                                    outcome = currentBatter.getName() + " hits a Single."
                                     hit = 1
                                 elif travelling > 0.16:
-                                    outcome = currentBatter.name + " hits a Double."
+                                    outcome = currentBatter.getName() + " hits a Double."
                                     hit = 2
                                 elif travelling > 0.15:
-                                    outcome = currentBatter.name + " hits a Triple."
+                                    outcome = currentBatter.getName() + " hits a Triple."
                                     hit = 3
                                 else:
-                                    outcome = currentBatter.name + " hits a Home Run!"
+                                    outcome = currentBatter.getName() + " hits a Home Run!"
                                     hit = 4
                                 runsScored = 0
                                 for runner in range(len(bases)-1, -1, -1):
-                                    if hit == 4:
+                                    if bases[runner] != 0 and hit == 4:
                                         bases[runner] = 0
                                         runsScored = runsScored + 1
                                         if inning % 2:
@@ -146,7 +189,7 @@ def runGame(tms):
                                         elif bases[runner + hit] != 0:
                                             bases[runner + hit] = bases[runner]
                                             bases[runner] = 0
-                                    else:
+                                    elif bases[runner] != 0:
                                         outcome = outcome + " " + defender.getName() + " tags " + bases[runner].getName() + " out at " + ("1st","2nd","3rd")[runner] + " base."
                                         bases[runner] = 0
                                         outs = outs + 1
@@ -159,48 +202,54 @@ def runGame(tms):
                                 else:
                                    bases[hit-1] = currentBatter # it should be impossible for this to overwrite a player and if it does it won't really matter
                             else: #batter gets out on hit
+                                batting = False
                                 if distance < 0.4:
                                     outcome = "Fly out to " + defender.getName()
                                 else:
                                     outcome = "Ground out to " + defender.getName()
                                 for runner in range(len(bases)-1, -1, -1):
-                                    sacAdv = random.random() + (0.2 * defender.blocking)
-                                    if runner == 2:
-                                        if sacAdv < 0.2 + (0.2 * bases[runner].plead):
-                                                outcome = outcome + " " + bases[runner].getName() + " scores on the sacrifice."
-                                                runsScored = runsScored + 1
-                                                if inning % 2:
-                                                    awayRuns = awayRuns + 1
-                                                else:
-                                                    homeRuns = homeRuns + 1
-                                                bases[runner] = 0
-                                        elif sacAdv > 0.7 + (0.2 * bases[runner].plead):
-                                            outcome = outcome + " " + bases[runner].getName() + " was caught out on the sacrifice."
-                                            bases[runner] = 0
-                                            outs = outs + 1
-                                    else:
-                                        if bases[runner + 1] == 0:
+                                    if bases[runner] != 0:
+                                        sacAdv = random.random() + (0.2 * defender.blocking)
+                                        if runner == 2:
                                             if sacAdv < 0.2 + (0.2 * bases[runner].plead):
-                                                outcome = outcome + " " + bases[runner].getName() + " advances on the sacrifice."
-                                                bases[runner + 1] = bases[runner]
-                                                bases[runner] = 0
+                                                    outcome = outcome + " " + bases[runner].getName() + " scores on the sacrifice."
+                                                    runsScored = runsScored + 1
+                                                    if inning % 2:
+                                                        awayRuns = awayRuns + 1
+                                                    else:
+                                                        homeRuns = homeRuns + 1
+                                                    bases[runner] = 0
                                             elif sacAdv > 0.7 + (0.2 * bases[runner].plead):
                                                 outcome = outcome + " " + bases[runner].getName() + " was caught out on the sacrifice."
                                                 bases[runner] = 0
                                                 outs = outs + 1
+                                        else:
+                                            if bases[runner + 1] == 0:
+                                                if sacAdv < 0.2 + (0.2 * bases[runner].plead):
+                                                    outcome = outcome + " " + bases[runner].getName() + " advances on the sacrifice."
+                                                    bases[runner + 1] = bases[runner]
+                                                    bases[runner] = 0
+                                                elif sacAdv > 0.7 + (0.2 * bases[runner].plead):
+                                                    outcome = outcome + " " + bases[runner].getName() + " was caught out on the sacrifice."
+                                                    bases[runner] = 0
+                                                    outs = outs + 1
                                 outs = outs + 1
                         else:
                             if strikes < 2:
                                 strikes = strikes + 1
-                            outcome = "Foul Ball. " + balls + "-" + strikes
-                output
+                            outcome = "Foul Ball. " + str(balls) + "-" + str(strikes)
+                if runsScored:
+                    outcome = outcome + " " + str(runsScored) + " Runs Scored."
+                output(outcome)
                 tick()
-                if strikes >= 3:
-                    output(currentBatter.getName + " Strikes Out.")
+                
+                if batting and strikes >= 3:
+                    output(currentBatter.getName() + " Strikes Out.")
                     outs = outs + 1
                     batting = False
-                elif balls >= 4:
-                    outcome = currentBatter.getName() + " Walks to First Place."
+                    tick()
+                elif batting and balls >= 4:
+                    outcome = currentBatter.getName() + " Walks to First Base."
                     # Advancement algorithm. Can't be in function because I need too many results from it. (state of bases, anyone who scored, sometimes I will need to account for runners getting out)
                     if bases[0] == 0:
                         bases[0] = currentBatter
@@ -221,7 +270,8 @@ def runGame(tms):
                         else:
                             homeRuns = homeRuns + 1
                     output(outcome)
-                
+                    tick()
+            batter = batter + 1    
 
                  
 
@@ -234,6 +284,13 @@ def runGame(tms):
             inning = inning + 1
         else:
             game = False
+    print((away.name,home.name)[homeRuns>awayRuns] + " Won " + str((awayRuns,homeRuns)[homeRuns>awayRuns]) + " to " + str((homeRuns,awayRuns)[homeRuns>awayRuns]) + ".")
+    if homeRuns > awayRuns:
+        home.win()
+        away.lose()
+    else:
+        away.win()
+        home.lose()
 
 def openTeam(team):
     opening = True
