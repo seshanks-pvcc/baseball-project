@@ -96,7 +96,7 @@ def runGame(tms):
         currentPitcher = pitchingTeam.getCurrentPitcher()
         output(currentPitcher.getName() + " pitching for the " + pitchingTeam.name)
         tick()
-        while outs <= 3: #loops every plate appearence
+        while outs < 3: #loops every plate appearence
             balls = 0
             strikes = 0
             currentBatter = battingTeam.batters[batter]
@@ -239,7 +239,7 @@ def runGame(tms):
                                 strikes = strikes + 1
                             outcome = "Foul Ball. " + str(balls) + "-" + str(strikes)
                 if runsScored:
-                    outcome = outcome + " " + str(runsScored) + " Runs Scored."
+                    outcome = outcome + " " + str(runsScored) + " Run" + ("","s")[runsScored>1] + " Scored."
                 output(outcome)
                 tick()
                 
