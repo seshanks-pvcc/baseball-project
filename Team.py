@@ -20,6 +20,12 @@ def genlname(inp):
     namelist.close()
     return name
 
+#for fun, a function that is never run in normal use but generates and prints an arbitrary amount of baseball names
+def genNames(num):
+    for i in range(num):
+        print(genfname(0) + " " + genlname(0))
+
+
 class Player:
     #defined here so that it can be referred to by all players
     positions = ("Catcher","First Base","Second Base","Third Base","Shortstop","Left Field","Right Field","Center Field", "Pitcher")
@@ -69,8 +75,8 @@ class Player:
         return (self.vigilence + self.perception + self.blocking + self.chasing) / 4
         
     def __str__(self):
-        # TODO: Fix to justify it
-        return self.fname + " " + self.lname + ", " + (" " * (25 - (1 + len(self.fname) + len(self.lname)))) + self.getPosition() + ": " + (" " * (12 - len(self.getPosition()))) + toStars((self.averageBatting(), self.averagePitching())[self.getPosition() == self.positions[-1]])
+        # 48 is the longest possible combination of names.
+        return self.fname + " " + self.lname + ", " + (" " * (48 - (1 + len(self.fname) + len(self.lname)))) + self.getPosition() + ": " + (" " * (12 - len(self.getPosition()))) + toStars((self.averageBatting(), self.averagePitching())[self.getPosition() == self.positions[-1]])
     
     def getName(self, full=True):
         if full:
