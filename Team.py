@@ -7,11 +7,18 @@ def toStars(stat):
 
 def genfname(inp):
     #Will pick a name from a list, or will generate a name from a set of alternating "consonants" and "vowels"
-    #currently set to make debug names
-    return ("1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th")[inp]
+    #debug names below
+    #return ("1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th")[inp]
+    namelist = open("firstnames.csv", "r")
+    name = random.choice(namelist.read().split("\n"))
+    namelist.close()
+    return name
 
 def genlname(inp):
-    return ("Pitcher", "Batter")[inp]
+    namelist = open("lastnames.csv", "r")
+    name = random.choice(namelist.read().split("\n"))
+    namelist.close()
+    return name
 
 class Player:
     #defined here so that it can be referred to by all players

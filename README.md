@@ -37,8 +37,8 @@ Teams will also have a number of methods to define how they are displayed, as we
 Player will be a class consisting of a number of statistical attributes which will affect the odds of the randomly generated rolls as well as a name and position. The list of atributes is as follows:
 ```
 #Attribute       Type
-fname            str
-lname            str
+fname            str (Randomly chosen from the first names of players in the BaseballProspectus database retrieved from https://legacy.baseballprospectus.com/sortable/playerid_list.php)
+lname            str (Randomly chosen from the last names from the same)
 position         str (might be enum to make it easier to implement)
 
 #all of these are floats between 0 and 1
@@ -66,6 +66,7 @@ perception       (catching hits)
 blocking         (prevents runners from advancing)
 chasing          (prevents batter from reaching extra bases)
 ```
+The name lists are stored in two separate single collumn "csv" files that in practice are just separated by newlines. The only cleaning I did was remove duplicate names, I didn't even remove the collumn headers. This is because it is funny if a player is named "FIRSTNAME" or "1b"
 
 ## Game
 The game state will be stored in local variables in the game function. There will be random.random() values compared to threasholds modified by the stats of relevant players. If the generated number is less than the threashold it will be "successful" and the outcome will favor the batting team. 
