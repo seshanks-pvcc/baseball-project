@@ -14,7 +14,7 @@ teams = [Team("Testing Testers", "Slogan still under review", "T"), Team("Detroi
 
 # Function modules
 def tick():
-    time.sleep(0.2)
+    time.sleep(0.4)
 
 def convertInning(num):
     inning = (num // 2) + 1
@@ -309,16 +309,17 @@ def openTeam(team):
         
 
 def openGame():
-    print("This hasn't been finished yet")
+    print("Select the away team")
     playingTeams = []
     while(len(playingTeams) < 2):
+        if len(playingTeams) == 1:
+            print("The " + playingTeams[0].name + " at which team?")
         # zip creates a list of tuples in the form ("n)", nth team) and this list comprehension makes that into a list of strings in the form "n) nth team", which is then joined by newlines
         menu = "\n".join(["".join(pair) for pair in zip(map(lambda x: str(x+1) + ") ", range(len(teams))), map(str, teams))] + ["99) End"])
         print(menu)
         option = input()
         if(option.isdigit() and int(option)-1 in range(len(teams)) and option != "99" and teams[int(option) - 1] not in playingTeams):
             playingTeams.append(teams[int(option)-1])
-            print(" ".join([tm.name for tm in playingTeams])) # this is debug
         elif (option != "99" and teams[int(option)-1] in playingTeams):
             print("You have already selected that team")
         elif (option == "99"):
@@ -328,7 +329,7 @@ def openGame():
     runGame(playingTeams)
 
 def listTeams():
-    print("This hasn't been finished yet")
+    print("Select a team to view its players and other information about it")
     menu = "\n".join(["".join(pair) for pair in zip(map(lambda x: str(x+1) + ") ", range(len(teams))), map(str, teams))] + ["99) End"])
     print(menu)
     option = input()
@@ -340,17 +341,27 @@ def listTeams():
         print("Please select a valid option")
         listTeams()
 
+def addTeam():
+    print("Input Team Name")
+    name = input()
+    print("Input Team Slogan")
+    slogan = input()
+    print("Input Team Symbol (one character)")
+    symbol = input()[0]
+    teams.append(Team(name,slogan,symbol))
 
 print("Welcome to Emily's baseball simulation \n")
 #Main loop
 while(program):
-    print("Select an option:\n" + "1) Run Game\n" + "2) List Teams\n" + "99) End")
+    print("Select an option:\n" + "1) Run Game\n" + "2) List Teams\n" + "3) Add Team\n" + "99) End")
     option = input()
     match option:
         case "1":
             openGame()
         case "2":
             listTeams()
+        case "3":
+            addTeam()
         case "99":
             print("Thanks for playing")
             program = False
